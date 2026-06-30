@@ -135,18 +135,19 @@ Detalhes em [`docs/bugs/`](docs/bugs/):
 
 Workflow em [`.github/workflows/ci.yml`](.github/workflows/ci.yml). No CI, a aplicação precisa estar disponível como checkout adicional ou artefato — veja comentários no workflow.
 
-## Estrutura do repositório
+## Estrutura do repositório de testes
 
-```
+```text
 tests/
-├── README.md
-├── docs/bugs/
-├── backend/
+├── README.md                  # Guia de execução e documentação geral de testes
+├── docs/bugs/                 # Relatórios detalhados de bugs encontrados na aplicação
+├── backend/                   # Camada de Testes de Backend (.NET 9 / xUnit)
 │   ├── MinhasFinancas.Tests.sln
-│   ├── MinhasFinancas.UnitTests/
-│   └── MinhasFinancas.IntegrationTests/
-├── frontend/
-│   ├── unit/
-│   └── e2e/
-└── .github/workflows/
+│   ├── MinhasFinancas.UnitTests/         # Testes Unitários: Regras puras de domínio e serviços
+│   └── MinhasFinancas.IntegrationTests/  # Testes de Integração: Controllers, pipelines e persistência EF Core
+├── frontend/                  # Camada de Testes de Frontend (React)
+│   ├── unit/                  # Testes Unitários com Vitest: Schemas Zod, validadores e lógica pura do front
+│   └── e2e/                   # Testes End-to-End com Playwright: Jornadas reais de usuário na UI integrada com a API
+└── .github/workflows/         # Pipeline CI no GitHub Actions para automatizar a execução dos testes
 ```
+

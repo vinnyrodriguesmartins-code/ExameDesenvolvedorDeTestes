@@ -1,5 +1,7 @@
+# Nome da pipeline de Integração Contínua (CI)
 name: Tests CI
 
+# Eventos que disparam a execução da pipeline (Push ou Pull Request na branch principal)
 on:
   push:
     branches: [main, master]
@@ -7,16 +9,17 @@ on:
     branches: [main, master]
 
 jobs:
+  # TRABALHO 1: Executa testes unitários e de integração do backend (.NET)
   backend-tests:
     runs-on: ubuntu-latest
     steps:
+      # Baixa o repositório contendo os testes
       - name: Checkout tests
         uses: actions/checkout@v4
         with:
           path: tests
 
-      # A aplicação deve ser obtida separadamente (repo privado do exame).
-      # Exemplo: checkout de um segundo repositório ou artefato fornecido.
+      # Baixa o código-fonte da aplicação a ser testada (necessário para compilação/dependências)
       - name: Checkout application source
         uses: actions/checkout@v4
         with:
@@ -25,25 +28,30 @@ jobs:
           token: ${{ secrets.APP_SOURCE_TOKEN }}
         continue-on-error: true
 
+      # Configura o ambiente com a versão do .NET necessária
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "9.0.x"
 
+      # Restaura pacotes NuGet e executa a suíte de testes xUnit do backend
       - name: Restore and test backend
         working-directory: tests/backend
         run: |
           dotnet restore MinhasFinancas.Tests.sln
           dotnet test MinhasFinancas.Tests.sln --no-restore --verbosity normal
 
+  # TRABALHO 2: Executa testes unitários do frontend (React + Vitest)
   frontend-unit:
     runs-on: ubuntu-latest
     steps:
+      # Baixa os arquivos de teste
       - name: Checkout tests
         uses: actions/checkout@v4
         with:
           path: tests
 
+      # Baixa o código do frontend (necessário para validar lógica do projeto e schemas)
       - name: Checkout application source (web)
         uses: actions/checkout@v4
         with:
@@ -52,6 +60,7 @@ jobs:
           token: ${{ secrets.APP_SOURCE_TOKEN }}
         continue-on-error: true
 
+      # Instala o Node.js e configura cache para instalação rápida do npm
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -59,36 +68,44 @@ jobs:
           cache: npm
           cache-dependency-path: tests/frontend/package.json
 
+      # Instala dependências do frontend de testes e executa o Vitest
       - name: Install and run Vitest
         working-directory: tests/frontend
         run: |
           npm ci || npm install
           npm run test:unit
 
+  # TRABALHO 3: Executa testes de ponta a ponta (E2E) com Playwright
+  # Roda em paralelo apenas se os testes anteriores (backend e unitários front) passarem
   e2e:
     runs-on: ubuntu-latest
     needs: [backend-tests, frontend-unit]
-    if: vars.RUN_E2E == 'true'
+    if: vars.RUN_E2E == 'true' # Roda somente se a variável de ambiente permitir
     steps:
+      # Baixa os testes
       - name: Checkout tests
         uses: actions/checkout@v4
         with:
           path: tests
 
+      # Instala o Node.js
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "20"
 
+      # Instala dependências e os navegadores virtuais necessários para o Playwright
       - name: Install Playwright
         working-directory: tests/frontend
         run: |
           npm ci || npm install
           npx playwright install --with-deps chromium
 
+      # Executa os testes automatizados simulando ações reais do usuário no navegador
       - name: Run E2E
         working-directory: tests/frontend
         env:
           WEB_BASE_URL: ${{ vars.WEB_BASE_URL }}
           API_BASE_URL: ${{ vars.API_BASE_URL }}
         run: npm run test:e2e
+

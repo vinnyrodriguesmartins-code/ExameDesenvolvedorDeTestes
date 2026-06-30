@@ -2,14 +2,21 @@
 
 Sistema de controle de gastos residenciais com Clean Architecture.
 
-## Arquitetura
+## Arquitetura e Estrutura do Projeto
 
-- **Backend**: .NET 9 Web API (Clean Architecture)
-- **Application**: `MinhasFinancas.Application` (serviços, DTOs, validações)
-- **Domain**: `MinhasFinancas.Domain` (entidades, interfaces, regras de negócio)
-- **Infrastructure**: `MinhasFinancas.Infrastructure` (EF Core, repositórios, seed)
-- **Frontend**: React com TypeScript (pasta `web/`)
-- **Banco de Dados**: SQLite por padrão (configurável)
+- **`api/` (Backend .NET 9 Web API)**: Camada que gerencia os dados e regras de negócio.
+  - **`MinhasFinancas.API`**: Entrada/Apresentação (Controllers, middlewares e configuração da API).
+  - **`MinhasFinancas.Application`**: Regras de aplicação (Casos de uso, serviços de orquestração, DTOs).
+  - **`MinhasFinancas.Domain`**: Core do domínio (Entidades puras, regras de negócio principais).
+  - **`MinhasFinancas.Infrastructure`**: Acesso a dados (Contexto EF Core, Migrations do SQLite, inicializadores de dados).
+- **`web/` (Frontend React + TypeScript)**: Interface visual do usuário rodando com Vite.
+- **`tests/` (Suíte de Testes)**: Estrutura isolada de garantia de qualidade.
+  - **`tests/backend/`**: Testes automatizados (Unitários e de Integração com xUnit) para a API .NET.
+  - **`tests/frontend/`**: Testes do frontend (Unitários com Vitest e E2E/Interface com Playwright).
+  - **`tests/.github/workflows/`**: Esteiras de integração contínua (CI) que rodam os testes a cada push/pull request.
+- **`data/`**: Diretório que armazena a base SQLite (`minhasfinancas.db`) gerada localmente.
+- **`docker-compose.yml`**: Orquestrador para rodar toda a aplicação (API + Frontend + DB) em containers.
+
 
 ## Quickstart — Desenvolvimento local
 
